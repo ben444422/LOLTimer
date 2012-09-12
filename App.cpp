@@ -6,6 +6,7 @@
 #include <set>
 #include <map>
 
+
 //=============== sets and maps =======================
 //set that holds all containers
 std::set<int> containerSet;
@@ -25,9 +26,14 @@ std::map<SRTouchZone, double> SRTouchZoneToTimeMap;
 //map holding touchzone enum as the key and the time text handle as the value 
 std::map<SRTouchZone, int> SRTouchZoneToTimeTextMap;
 
-//map holding touchzone enum as the key and the text above the time 
+//map holding touchzone enum as the key and the appropriate text above the time WHEN THE TIMER IS ON
 std::map<SRTouchZone, char *> SRTouchZoneToTimeLabelTextMap;
 
+//map holding the touchzone enum as the key and the appropriate label text as the key WHEN THE TIMER IS OFF
+std::map<SRTouchZone, char*> SRTouchZoneToDefaultTimeLabelTextMap;
+
+//map holding the touchzone enum as the key and the appropriate label time as the key WHEN THE TIMER IS ON
+std::map<SRTouchZone, int> SRTouchZoneToTimeTextMapTimerOn;
 //=====================================================================
 
 //====================containers
@@ -37,9 +43,6 @@ int cont_Main;
 
 //true if start game slide button is pressed down
 bool startGameSlideButtonDown;
-
-//true if in start game slider
-bool startGameSliderDown;
 
 //true if the game has started, false if not
 bool gameStarted;
@@ -59,46 +62,78 @@ void init() {
 	//lock screen to portrait mode
 	AutoRotateInit(0, 0);
 
-	
 
-
-	//fill the SR Container
+	//start game slider properties
 	ViewAdd(cont_SR, ImageAdd("Images/SR/StartGameSlider.png"), 0, 0);
 	TouchAdd(cont_SR, 3, 3, 314, 38,  OnTouchSRStartGameSlider, SR_StartGameSlider);
-	startGameSliderDown = false;
 	
-	gameSliderText = TextAdd(cont_SR, 50, 10, "Slide to Start Game", FontAdd("Arial", "Bold", 20, 0xFFFFFF));
+	gameSliderText = TextAdd(cont_SR, 50, 4, "Slide to Start Game", FontAdd("Arial", "Bold", 17, 0xFFFFFF));
 	SRTouchZoneToViewMap[SR_StartGameSlideButton] = ViewAdd(cont_SR, "Images/SR/startGameSlideButton.png", 3, 3);
 	startGameSlideButtonDown = false;
+
+	//timer properties
 	SRTouchZoneToViewMap[SR_DragonPanel] = ViewAdd(cont_SR, ImageAdd("Images/SR/DragonPanel.png"), 0, 45, OnTouchSR, SR_DragonPanel);
 	SRTouchZoneToBoolMap[SR_DragonPanel] = false;
 	SRTouchZoneToTimeMap[SR_DragonPanel] = -1.0;
 	SRTouchZoneToTimeTextMap[SR_DragonPanel] = TextAdd(cont_SR, 33, 50, "  Dragon", FontAdd("Arial", "Bold", 20, 0xFFFFFF));
-	SRTouchZoneToTimeLabelTextMap[SR_DragonPanel] = "Dragon in\n     ";
+	SRTouchZoneToTimeLabelTextMap[SR_DragonPanel] = "Dragon in";
+	SRTouchZoneToDefaultTimeLabelTextMap[SR_DragonPanel] = "  Dragon";
+	SRTouchZoneToTimeTextMapTimerOn[SR_DragonPanel] = TextAdd(cont_SR, 33, 70, "      ", FontAdd("Arial", "Bold", 20, 0xFFFFFF));
 
 	SRTouchZoneToViewMap[SR_BaronPanel] = ViewAdd(cont_SR, ImageAdd("Images/SR/BaronPanel.png"), 160, 45, OnTouchSR, SR_BaronPanel);
 	SRTouchZoneToBoolMap[SR_BaronPanel] = false;
 	SRTouchZoneToTimeMap[SR_BaronPanel] = -1.0;
 	SRTouchZoneToTimeTextMap[SR_BaronPanel] = TextAdd(cont_SR, 193, 50, "   Baron", FontAdd("Arial", "Bold", 20, 0xFFFFFF));
-	SRTouchZoneToTimeLabelTextMap[SR_BaronPanel] = " Baron in\n     ";
+	SRTouchZoneToTimeLabelTextMap[SR_BaronPanel] = " Baron in";
+	SRTouchZoneToDefaultTimeLabelTextMap[SR_BaronPanel] = "   Baron";
+	SRTouchZoneToTimeTextMapTimerOn[SR_BaronPanel] = TextAdd(cont_SR, 193, 70, " ", FontAdd("Arial", "Bold", 20, 0xFFFFFF));
 
+	//add the "Yours" Label
 	ViewAdd(cont_SR, ImageAdd("Images/SR/YoursLabel.png"), 0, 105); 
 
 	SRTouchZoneToViewMap[SR_YourBlueGolemPanel] = ViewAdd(cont_SR, ImageAdd("Images/SR/BlueGolemPanel.png"), 0, 130, OnTouchSR, SR_YourBlueGolemPanel);
 	SRTouchZoneToBoolMap[SR_YourBlueGolemPanel] = false;
 	SRTouchZoneToTimeMap[SR_YourBlueGolemPanel] = -1.0;
 	SRTouchZoneToTimeTextMap[SR_YourBlueGolemPanel] = TextAdd(cont_SR, 15, 132, "  Blue Golem", FontAdd("Arial", "Bold", 20, 0xFFFFFF));
-	SRTouchZoneToTimeLabelTextMap[SR_YourBlueGolemPanel] = "Blue Golem in\n         ";
+	SRTouchZoneToTimeLabelTextMap[SR_YourBlueGolemPanel] = "Blue Golem in";
+	SRTouchZoneToDefaultTimeLabelTextMap[SR_YourBlueGolemPanel] = "  Blue Golem";
+	SRTouchZoneToTimeTextMapTimerOn[SR_YourBlueGolemPanel] = TextAdd(cont_SR, 33, 152, "      ", FontAdd("Arial", "Bold", 20, 0xFFFFFF));
 
 	SRTouchZoneToViewMap[SR_YourRedGolemPanel] = ViewAdd(cont_SR, ImageAdd("Images/SR/RedGolemPanel.png"), 160, 130, OnTouchSR, SR_YourRedGolemPanel);
 	SRTouchZoneToBoolMap[SR_YourRedGolemPanel] = false;
 	SRTouchZoneToTimeMap[SR_YourRedGolemPanel] = -1.0;
 	SRTouchZoneToTimeTextMap[SR_YourRedGolemPanel] = TextAdd(cont_SR, 179, 132, "  Red Lizard", FontAdd("Arial", "Bold", 20, 0xFFFFFF));
-	SRTouchZoneToTimeLabelTextMap[SR_YourRedGolemPanel] = "Red Lizard in\n        ";
+	SRTouchZoneToTimeLabelTextMap[SR_YourRedGolemPanel] = "Red Lizard in";
+	SRTouchZoneToDefaultTimeLabelTextMap[SR_YourRedGolemPanel] = "  Red Lizard";
+	SRTouchZoneToTimeTextMapTimerOn[SR_YourRedGolemPanel] = TextAdd(cont_SR, 179, 152, "      ", FontAdd("Arial", "Bold", 20, 0xFFFFFF));
+	
 
+	//add the GP10 label
+	ViewAdd(cont_SR, ImageAdd("Images/SR/gp10panel.png"), 0, 185);
+	//add the theirs label
+	ViewAdd(cont_SR, ImageAdd("Images/SR/TheirsLabel.png"), 0, 240);
 
-	//dim all of the panels
-	dimPanels();
+	//add the two golem panels for theirs
+	SRTouchZoneToViewMap[SR_TheirBlueGolemPanel] = ViewAdd(cont_SR, ImageAdd("Images/SR/BlueGolemPanel.png"), 0, 265, OnTouchSR, SR_TheirBlueGolemPanel);
+	SRTouchZoneToBoolMap[SR_TheirBlueGolemPanel] = false;
+	SRTouchZoneToTimeMap[SR_TheirBlueGolemPanel] = -1.0;
+	SRTouchZoneToTimeTextMap[SR_TheirBlueGolemPanel] = TextAdd(cont_SR, 15, 267, "  Blue Golem      ", FontAdd("Arial", "Bold", 20, 0xFFFFFF));
+	SRTouchZoneToTimeLabelTextMap[SR_TheirBlueGolemPanel] = "Blue Golem in";
+	SRTouchZoneToDefaultTimeLabelTextMap[SR_TheirBlueGolemPanel] = "  Blue Golem";
+	SRTouchZoneToTimeTextMapTimerOn[SR_TheirBlueGolemPanel] = TextAdd(cont_SR, 33, 287, "          ", FontAdd("Arial", "Bold", 20, 0xFFFFFF));
+
+	SRTouchZoneToViewMap[SR_TheirRedGolemPanel] = ViewAdd(cont_SR, ImageAdd("Images/SR/RedGolemPanel.png"), 160, 130, OnTouchSR, SR_TheirRedGolemPanel);
+	SRTouchZoneToBoolMap[SR_TheirRedGolemPanel] = false;
+	SRTouchZoneToTimeMap[SR_TheirRedGolemPanel] = -1.0;
+	SRTouchZoneToTimeTextMap[SR_TheirRedGolemPanel] = TextAdd(cont_SR, 179, 267, "  Red Lizard", FontAdd("Arial", "Bold", 20, 0xFFFFFF));
+	SRTouchZoneToTimeLabelTextMap[SR_TheirRedGolemPanel] = "Red Lizard in";
+	SRTouchZoneToDefaultTimeLabelTextMap[SR_TheirRedGolemPanel] = "  Red Lizard";
+	SRTouchZoneToTimeTextMapTimerOn[SR_TheirRedGolemPanel] = TextAdd(cont_SR, 179, 287, "      ", FontAdd("Arial", "Bold", 20, 0xFFFFFF));
+
+	//add the summor spells panel
+	ViewAdd(cont_SR, ImageAdd("Images/SR/SummonerSpells.png"), 0, 320);
+	//end the game
+	endGame();
 
 	//add all of the containers to the container set 
 	containerSet.insert(cont_SR);
@@ -111,21 +146,35 @@ void init() {
 	stateToContainerMap[STATE_SRJungle] = cont_SRJungle;
 
 }
-
-
-void dimPanels() {
-	std::map<SRTouchZone, int>:: iterator iter;
-	for (iter = SRTouchZoneToViewMap.begin(); iter != SRTouchZoneToViewMap.end(); iter++) {
-		int view = iter->second;
+//dims all of the panels (defaulting of the value occurs in startGame())
+void endGame() {
+	//dim all of the panels
+	std::map<SRTouchZone, int>::iterator viewIter;
+	for (viewIter = SRTouchZoneToViewMap.begin(); viewIter != SRTouchZoneToViewMap.end(); viewIter++) {
+		int view = viewIter->second;
 		ViewSetAlpha(view, 30);
 	}
-	
 }
-void lightPanels() {
+
+//lights up all of the panels and defaults the values
+void startGame() {
+	//light up all of the panels
 	std::map<SRTouchZone, int>:: iterator iter;
 	for (iter = SRTouchZoneToViewMap.begin(); iter != SRTouchZoneToViewMap.end(); iter++) {
 		int view = iter->second;
 		ViewSetAlpha(view, 100);
+	}
+
+	//set all timers to off
+	//sets times to -1.0
+	//reset the default time text when the timer is off
+	std::map<SRTouchZone, bool>::iterator timerIter;
+	for (timerIter = SRTouchZoneToBoolMap.begin(); timerIter != SRTouchZoneToBoolMap.end(); timerIter++) {
+		SRTouchZone tz = timerIter->first;
+		SRTouchZoneToBoolMap[tz] = false;
+		SRTouchZoneToTimeMap[tz] = -1.0;
+		TextSetText(SRTouchZoneToTimeTextMap[tz], SRTouchZoneToDefaultTimeLabelTextMap[tz]);
+
 	}
 }
 
@@ -156,7 +205,7 @@ int OnTouchSRStartGameSlider(int id, int event, int x, int y) { //1 = down
 			startGameSlideButtonDown = false;
 			ViewSetxy(SRTouchZoneToViewMap[SR_StartGameSlideButton], 279, 3);
 			gameStarted = true;
-			lightPanels();
+			startGame();
 			gameTime = 0.0;
 		} else {
 			//AlertShow("title", "it didn't worked");
@@ -173,77 +222,22 @@ int OnTouchSR(int id, int event, int x, int y) { //event: 1=down, 2=move, 3=up
 	if (!gameStarted) return 0;
 
 	if (event == 3) {
-		switch (id) {
-		case SR_StartGameSliderEnd:
-			if (startGameSlideButtonDown && startGameSliderDown) {
-				ContainerSetVisible(cont_SR, 0);
-				startGameSlideButtonDown = false;
-				startGameSliderDown = false;
-				ViewSetxy(SRTouchZoneToViewMap[SR_StartGameSlideButton], 3, 3);
-			}
-		case SR_DragonPanel:
-			if (SRTouchZoneToBoolMap[SR_DragonPanel]) {
-				//if on already turn off
-				ViewSetAlpha(SRTouchZoneToViewMap[SR_DragonPanel], 100);
-				SRTouchZoneToBoolMap[SR_DragonPanel] = false;
-				SRTouchZoneToTimeMap[SR_DragonPanel] = -1.0;
-				TextSetText(SRTouchZoneToTimeTextMap[SR_DragonPanel], "  Dragon");
-			} else {
-				//if off already turn on
-				ViewSetAlpha(SRTouchZoneToViewMap[SR_DragonPanel], 30);
-				SRTouchZoneToBoolMap[SR_DragonPanel] = true;
-				SRTouchZoneToTimeMap[SR_DragonPanel] = 100.0;
-			}
-			break;
-		case SR_BaronPanel:
-			if (SRTouchZoneToBoolMap[SR_BaronPanel]) {
-				//if on already turn off
-				ViewSetAlpha(SRTouchZoneToViewMap[SR_BaronPanel], 100);
-				SRTouchZoneToBoolMap[SR_BaronPanel] = false;
-				SRTouchZoneToTimeMap[SR_BaronPanel] = -1.0;
-				TextSetText(SRTouchZoneToTimeTextMap[SR_BaronPanel], "   Baron");
-			} else {
-				//if off already turn on
-				ViewSetAlpha(SRTouchZoneToViewMap[SR_BaronPanel], 30);
-				SRTouchZoneToBoolMap[SR_BaronPanel] = true;
-				SRTouchZoneToTimeMap[SR_BaronPanel] = 100.0;
-			}
-			break;
-		case SR_YourBlueGolemPanel:
-			if (SRTouchZoneToBoolMap[SR_YourBlueGolemPanel]) {
-				//if on already turn off
-				ViewSetAlpha(SRTouchZoneToViewMap[SR_YourBlueGolemPanel], 100);
-				SRTouchZoneToBoolMap[SR_YourBlueGolemPanel] = false;
-				SRTouchZoneToTimeMap[SR_YourBlueGolemPanel] = -1.0;
-				TextSetText(SRTouchZoneToTimeTextMap[SR_YourBlueGolemPanel], "  Blue Golem");
-			} else {
-				//if off already turn on
-				ViewSetAlpha(SRTouchZoneToViewMap[SR_YourBlueGolemPanel], 30);
-				SRTouchZoneToBoolMap[SR_YourBlueGolemPanel] = true;
-				SRTouchZoneToTimeMap[SR_YourBlueGolemPanel] = 100.0;
-			}
-			break;
-		case SR_YourRedGolemPanel:
-			if (SRTouchZoneToBoolMap[SR_YourRedGolemPanel]) {
-				//if on already turn off
-				ViewSetAlpha(SRTouchZoneToViewMap[SR_YourRedGolemPanel], 100);
-				SRTouchZoneToBoolMap[SR_YourRedGolemPanel] = false;
-				SRTouchZoneToTimeMap[SR_YourRedGolemPanel] = -1.0;
-				TextSetText(SRTouchZoneToTimeTextMap[SR_YourRedGolemPanel], "  Red Lizard");
-				
-			} else {
-				//if off already turn on
-				ViewSetAlpha(SRTouchZoneToViewMap[SR_YourRedGolemPanel], 30);
-				SRTouchZoneToBoolMap[SR_YourRedGolemPanel] = true;
-				SRTouchZoneToTimeMap[SR_YourRedGolemPanel] = 110.0;
-			}
-			break;
-		case SR_Philo:
-		case SR_Kages:
-		case SR_Avarice:
-		case SR_HOG:
-			break;
+		SRTouchZone panel = (SRTouchZone) id;
+		if (SRTouchZoneToBoolMap[panel]) {
+			//if on already turn off
+			ViewSetAlpha(SRTouchZoneToViewMap[panel], 100);
+			SRTouchZoneToBoolMap[panel] = false;
+			SRTouchZoneToTimeMap[panel] = -1.0;
+			TextSetText(SRTouchZoneToTimeTextMap[panel], SRTouchZoneToDefaultTimeLabelTextMap[panel]);
+			TextSetVisible(SRTouchZoneToTimeTextMapTimerOn[panel], false);
+		} else {
+			//if off already turn on
+			ViewSetAlpha(SRTouchZoneToViewMap[panel], 30);
+			SRTouchZoneToBoolMap[panel] = true;
+			SRTouchZoneToTimeMap[panel] = 100.0;
+			TextSetVisible(SRTouchZoneToTimeTextMapTimerOn[panel], true);
 		}
+
 	}
 	return (0);
 
@@ -263,8 +257,6 @@ void OnTimer()
 	}
 }
 
-
-
 void updateTimers() {
 	//only update timers when the game has started 
 	if (gameStarted) {
@@ -273,10 +265,15 @@ void updateTimers() {
 		//update the main game timer
 		gameTime += (1.0/30.0);
 		int seconds = (int) gameTime + 0.5;
-		char str[40];
+		char str[15] = { '\0' };
 		convertTime(str, seconds);
-		TextSetText(gameSliderText, str);
+		char strFinal[100] = { '\0' };
+		strcpy(strFinal, "Slide Back to End Game\n       ");
+		strcat(strFinal, str);
 		
+		TextSetText(gameSliderText, strFinal);
+		TextSetColor(gameSliderText, 0xFFFF00);
+
 		//update the panel timers
 		std::map<enum SRTouchZone, double>::iterator iter;
 		for (iter = SRTouchZoneToTimeMap.begin(); iter != SRTouchZoneToTimeMap.end(); iter++) {
@@ -287,15 +284,10 @@ void updateTimers() {
 				time -= (1.0/30.0);
 				int roundedTime = (int) time + 0.5;
 				char str[10];
-				itoa(roundedTime, str, 10);
-
-				char * first = SRTouchZoneToTimeLabelTextMap[key];
-				char * final;
-				final = (char *) malloc(strlen(first) + 10);
-				strcpy(final, first);
-				strcat(final, str);
-				TextSetText(SRTouchZoneToTimeTextMap[key], final);
-
+				sprintf(str, "%d", roundedTime);
+				int timeValueHandle = SRTouchZoneToTimeTextMapTimerOn[key];
+				TextSetText(timeValueHandle, str);
+				
 				//update the timer value in the map
 				SRTouchZoneToTimeMap[key] = time;
 			}

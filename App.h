@@ -1,9 +1,13 @@
 #ifndef APP_H
 #define APP_H
 
-#include "Windows.h"
 
+#include <cstring>
+#include <cstdlib>
+#include <string>
+#include <stdio.h>
 
+//===================ENUMS=============================
 
 //application  states
 enum STATE {
@@ -23,44 +27,8 @@ enum SRTouchZone {
 	SR_Cleanse, SR_Flash, SR_Surge, SR_Exhaust, SR_CV,
 	SR_Ignite, SR_Teleport, SR_Heal, SR_Smite, SR_Ghost
 };
+//===================================================
 
-int AlertShow(char *title, char *message)
-{
-    MessageBox(NULL,message,title,MB_OK);
-    return(1);
-}
-
-
-
-//convert seconds to ##:## format as a char array
-void convertTime(char * str, int seconds) {
-	int m = seconds/60;
-	int s = seconds % 60;
-
-	char mstr[10];
-	itoa(m, mstr, 10);
-	char sstr[10];
-	itoa(s, sstr, 10);
-	char mfinal[10];
-	char sfinal[10];
-	if (m < 10) {
-		strcat(mfinal, "0");
-		strcat(mfinal, mstr);
-	} else {
-		strcat(mfinal, mstr);
-	}
-	if (s < 10) {
-		strcat(sfinal, "0");
-		strcat(sfinal, sstr);
-	} else {
-		strcat(sfinal, sstr);
-	}
-	char timeFinal[20];
-	strcat(timeFinal, mfinal);
-	strcat(timeFinal, ":");
-	strcat(timeFinal, sfinal);
-	strcpy(str, timeFinal);
-}
 
 //true if x and y are within the coordinates of the view false other wise
 bool contains(int view, int x, int y) {
@@ -75,8 +43,8 @@ bool contains(int minx, int miny, int maxx, int maxy, int x, int y) {
 	return (x >= minx && x <= maxx) && (y >= miny && y <= maxy);
 }
 
-void dimPanels();
-void lightPanels();
+void endGame();
+void startGame();
 
 int OnTouchSRStartGameSlider(int id, int event, int x, int y);
 void updateTimers();
@@ -85,4 +53,34 @@ void init();
 void clearContainers() ;
 void OnTimerSR();
 int OnTouchSR(int id, int event, int x, int y);
+
+
+//convert seconds to ##:## format as a char array
+void convertTime(char str[], int seconds) {
+	int m = (int) seconds/60;
+	int s = (int) seconds % 60;
+	char mstr[15] = { '\0' };
+	char sstr[15] = { '\0' };
+	sprintf(mstr, "%d", m);
+	sprintf(sstr, "%d", s);
+	
+	char mfinal[15] = { '\0' };
+	char sfinal[15] = { '\0' };
+
+	if (m < 10) {
+		strcat(mfinal, "0");
+		strcat(mfinal, mstr);
+	} else {
+		strcat(mfinal, mstr);
+	}
+	if (s < 10) {
+		strcat(sfinal, "0");
+		strcat(sfinal, sstr);
+	} else {
+		strcat(sfinal, sstr);
+	}
+	strcat(str, mfinal);
+	strcat(str, ":");
+	strcat(str, sfinal);
+}
 #endif
